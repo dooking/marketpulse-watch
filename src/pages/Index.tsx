@@ -1,11 +1,12 @@
 import Header from "@/components/Header";
 import BuyableStocksBanner from "@/components/BuyableStocksBanner";
 import StockTable from "@/components/StockTable";
-import { getBuyableStocks, getTopStocks } from "@/data/mockStocks";
+import { getBuyableStocks, getTopStocks, getTopOpenAiStocks } from "@/data/mockStocks";
 
 const Index = () => {
   const buyableStocks = getBuyableStocks();
   const topStocks = getTopStocks(10);
+  const topOpenAiStocks = getTopOpenAiStocks(10);
 
   return (
     <div className="min-h-screen bg-background">
@@ -17,7 +18,7 @@ const Index = () => {
         </section>
 
         <section className="animate-slide-up" style={{ animationDelay: '100ms' }}>
-          <StockTable stocks={topStocks} />
+          <StockTable stocks={topStocks} openAiStocks={topOpenAiStocks} />
         </section>
       </main>
 
