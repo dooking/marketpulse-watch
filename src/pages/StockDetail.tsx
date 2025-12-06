@@ -1,15 +1,23 @@
+import { useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import Header from "@/components/Header";
 import StockDetailCard from "@/components/StockDetailCard";
 import ScoreChart from "@/components/ScoreChart";
-import { getStockByTicker, generateStockHistory } from "@/data/mockStocks";
+import { getStockByTicker, generateStockHistory, StockHistory } from "@/data/mockStocks";
 import { Button } from "@/components/ui/button";
 
 const StockDetail = () => {
   const { ticker } = useParams<{ ticker: string }>();
   const stock = ticker ? getStockByTicker(ticker) : undefined;
-  const history = ticker ? generateStockHistory(ticker) : [];
+  const history = useMemo(() => ticker ? generateStockHistory(ticker) : [], [ticker]);
+  
+  const todayData = history[history.length - 1] || null;
+  const [selectedData, setSelectedData] = useState<StockHistory | null>(todayData);
+
+  const handleDataPointClick = (data: StockHistory) => {
+    setSelectedData(data);
+  };
 
   if (!stock) {
     return (
@@ -44,11 +52,20 @@ const StockDetail = () => {
         </Link>
 
         <section className="animate-fade-in">
-          <StockDetailCard stock={stock} />
+          <StockDetailCard 
+            stock={stock} 
+            selectedData={selectedData}
+            todayData={todayData}
+          />
         </section>
 
         <section className="animate-slide-up" style={{ animationDelay: '100ms' }}>
-          <ScoreChart data={history} ticker={stock.ticker} />
+          <ScoreChart 
+            data={history} 
+            ticker={stock.ticker}
+            onDataPointClick={handleDataPointClick}
+            selectedDate={selectedData?.date}
+          />
         </section>
       </main>
 
