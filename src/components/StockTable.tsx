@@ -121,83 +121,90 @@ const StockTable = ({ stocks, openAiStocks }: StockTableProps) => {
     setSelectedDate(new Date());
   };
 
+  const isTodaySelected = isToday(selectedDate);
+
   return (
     <div className="glass-card overflow-hidden">
       <Tabs defaultValue="score" className="w-full">
-        <div className="p-6 border-b border-border/50">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <TabsList className="grid w-full max-w-md grid-cols-2 bg-secondary/50">
-              <TabsTrigger 
-                value="score" 
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2"
-              >
-                <BarChart3 className="w-4 h-4" />
-                Top 10 점수
-              </TabsTrigger>
-              <TabsTrigger 
-                value="openai" 
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2"
-              >
-                <Sparkles className="w-4 h-4" />
-                OpenAI Top 10
-              </TabsTrigger>
-            </TabsList>
+        {/* Date Navigator - Prominent header style */}
+        <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-4 border-b border-border/50">
+          <div className="flex items-center justify-center gap-1">
+            <button
+              onClick={handlePrevDay}
+              className="p-2 rounded-full hover:bg-primary/10 transition-colors text-muted-foreground hover:text-foreground"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
 
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-9 w-9"
-                onClick={handlePrevDay}
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="group flex items-center gap-3 px-4 py-2 rounded-xl hover:bg-primary/10 transition-all">
+                  <div className="flex flex-col items-center">
+                    <span className="text-3xl font-bold text-foreground leading-none">
+                      {format(selectedDate, "d")}
+                    </span>
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider">
+                      {format(selectedDate, "EEE", { locale: ko })}
+                    </span>
+                  </div>
+                  <div className="h-10 w-px bg-border/50" />
+                  <div className="flex flex-col items-start">
+                    <span className="text-sm font-medium text-foreground">
+                      {format(selectedDate, "MMMM", { locale: ko })}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {format(selectedDate, "yyyy")}
+                    </span>
+                  </div>
+                  <CalendarIcon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors ml-2" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="center">
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={(date) => date && setSelectedDate(date)}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
+
+            <button
+              onClick={handleNextDay}
+              className="p-2 rounded-full hover:bg-primary/10 transition-colors text-muted-foreground hover:text-foreground"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
+
+            {!isTodaySelected && (
+              <button
+                onClick={handleToday}
+                className="ml-3 px-3 py-1.5 text-xs font-medium bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-colors animate-fade-in"
               >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-[180px] justify-start text-left font-normal",
-                      !selectedDate && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {format(selectedDate, "PPP", { locale: ko })}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="end">
-                  <Calendar
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={(date) => date && setSelectedDate(date)}
-                    initialFocus
-                    className={cn("p-3 pointer-events-auto")}
-                  />
-                </PopoverContent>
-              </Popover>
-
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-9 w-9"
-                onClick={handleNextDay}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-
-              {!isToday(selectedDate) && (
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={handleToday}
-                  className="ml-2"
-                >
-                  오늘
-                </Button>
-              )}
-            </div>
+                오늘로
+              </button>
+            )}
           </div>
+        </div>
+
+        <div className="p-6 border-b border-border/50">
+          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 bg-secondary/50">
+            <TabsTrigger 
+              value="score" 
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2"
+            >
+              <BarChart3 className="w-4 h-4" />
+              Top 10 점수
+            </TabsTrigger>
+            <TabsTrigger 
+              value="openai" 
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2"
+            >
+              <Sparkles className="w-4 h-4" />
+              OpenAI Top 10
+            </TabsTrigger>
+          </TabsList>
         </div>
         
         <TabsContent value="score" className="mt-0">
