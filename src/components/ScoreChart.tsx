@@ -1,5 +1,6 @@
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 import { StockHistory } from "@/data/mockStocks";
+import { useTheme } from "next-themes";
 
 interface ScoreChartProps {
   data: StockHistory[];
@@ -9,6 +10,18 @@ interface ScoreChartProps {
 }
 
 const ScoreChart = ({ data, ticker, onDataPointClick, selectedDate }: ScoreChartProps) => {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+
+  // Theme-aware colors
+  const colors = {
+    primary: isDark ? "hsl(187, 85%, 53%)" : "hsl(200, 85%, 45%)",
+    primaryFaded: isDark ? "hsl(187, 85%, 53%)" : "hsl(200, 85%, 45%)",
+    grid: isDark ? "hsl(222, 30%, 18%)" : "hsl(214, 20%, 88%)",
+    axis: isDark ? "hsl(215, 20%, 55%)" : "hsl(215, 16%, 47%)",
+    dotStroke: isDark ? "hsl(222, 47%, 6%)" : "hsl(0, 0%, 100%)",
+  };
+
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
     return `${date.getMonth() + 1}/${date.getDate()}`;
@@ -33,7 +46,7 @@ const ScoreChart = ({ data, ticker, onDataPointClick, selectedDate }: ScoreChart
     if (active && payload && payload.length) {
       const isSelected = label === selectedDate;
       return (
-        <div className={`glass-card p-3 border ${isSelected ? 'border-primary' : 'border-border/50'}`}>
+        <div className={`bg-card border shadow-lg rounded-lg p-3 ${isSelected ? 'border-primary' : 'border-border'}`}>
           <p className="text-sm text-muted-foreground mb-1">{formatFullDate(label)}</p>
           <p className="text-lg font-mono font-bold text-primary">
             점수: {payload[0].value}
@@ -48,7 +61,7 @@ const ScoreChart = ({ data, ticker, onDataPointClick, selectedDate }: ScoreChart
   const todayDate = data[data.length - 1]?.date;
 
   return (
-    <div className="glass-card p-6">
+    <div className="bg-card border border-border rounded-lg p-6 shadow-sm">
       <div className="mb-6">
         <h3 className="text-lg font-semibold text-foreground">30일 점수 추이</h3>
         <p className="text-sm text-muted-foreground mt-1">{ticker} AI 분석 점수 변화 • 클릭하여 날짜별 데이터 확인</p>
@@ -64,19 +77,19 @@ const ScoreChart = ({ data, ticker, onDataPointClick, selectedDate }: ScoreChart
           >
             <defs>
               <linearGradient id="scoreGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="hsl(187, 85%, 53%)" stopOpacity={0.4} />
-                <stop offset="95%" stopColor="hsl(187, 85%, 53%)" stopOpacity={0} />
+                <stop offset="5%" stopColor={colors.primary} stopOpacity={isDark ? 0.4 : 0.3} />
+                <stop offset="95%" stopColor={colors.primary} stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid 
               strokeDasharray="3 3" 
-              stroke="hsl(222, 30%, 18%)" 
+              stroke={colors.grid}
               vertical={false}
             />
             <XAxis 
               dataKey="date" 
               tickFormatter={formatDate}
-              stroke="hsl(215, 20%, 55%)"
+              stroke={colors.axis}
               fontSize={12}
               tickLine={false}
               axisLine={false}
@@ -84,7 +97,7 @@ const ScoreChart = ({ data, ticker, onDataPointClick, selectedDate }: ScoreChart
             />
             <YAxis 
               domain={[0, 100]}
-              stroke="hsl(215, 20%, 55%)"
+              stroke={colors.axis}
               fontSize={12}
               tickLine={false}
               axisLine={false}
@@ -94,7 +107,7 @@ const ScoreChart = ({ data, ticker, onDataPointClick, selectedDate }: ScoreChart
             {selectedDate && selectedDate !== todayDate && (
               <ReferenceLine 
                 x={selectedDate} 
-                stroke="hsl(187, 85%, 53%)" 
+                stroke={colors.primary}
                 strokeDasharray="5 5"
                 strokeWidth={2}
               />
@@ -102,14 +115,14 @@ const ScoreChart = ({ data, ticker, onDataPointClick, selectedDate }: ScoreChart
             <Area
               type="monotone"
               dataKey="score"
-              stroke="hsl(187, 85%, 53%)"
+              stroke={colors.primary}
               strokeWidth={2}
               fill="url(#scoreGradient)"
               dot={false}
               activeDot={{ 
                 r: 8, 
-                fill: "hsl(187, 85%, 53%)",
-                stroke: "hsl(222, 47%, 6%)",
+                fill: colors.primary,
+                stroke: colors.dotStroke,
                 strokeWidth: 3,
                 cursor: 'pointer'
               }}
