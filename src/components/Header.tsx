@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { mockStocks } from "@/data/mockStocks";
 import { Input } from "@/components/ui/input";
-
+import { ThemeToggle } from "@/components/ThemeToggle";
 const Header = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
@@ -113,12 +113,15 @@ const Header = () => {
             )}
           </div>
 
-          <div className="text-right hidden sm:block shrink-0">
-            <p className="text-sm text-muted-foreground">{today}</p>
-            <div className="flex items-center gap-2 mt-1 justify-end">
-              <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
-              <span className="text-xs text-success">실시간 업데이트</span>
+          <div className="flex items-center gap-4 shrink-0">
+            <div className="text-right hidden sm:block">
+              <p className="text-sm text-muted-foreground">{today}</p>
+              <div className="flex items-center gap-2 mt-1 justify-end">
+                <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
+                <span className="text-xs text-success">실시간 업데이트</span>
+              </div>
             </div>
+            <ThemeToggle />
           </div>
         </div>
       </div>
