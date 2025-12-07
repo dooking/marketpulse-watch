@@ -1,7 +1,17 @@
-import { ArrowUpRight, ArrowDownRight, Sparkles, BarChart3 } from "lucide-react";
+import { useState } from "react";
+import { ArrowUpRight, ArrowDownRight, Sparkles, BarChart3, CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { format, addDays, subDays, isToday } from "date-fns";
+import { ko } from "date-fns/locale";
 import { Stock } from "@/data/mockStocks";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Table,
   TableBody,
@@ -10,6 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 
 interface StockTableProps {
   stocks: Stock[];
@@ -96,26 +107,97 @@ const StockTableContent = ({ stocks, scoreKey }: { stocks: Stock[]; scoreKey: 's
 );
 
 const StockTable = ({ stocks, openAiStocks }: StockTableProps) => {
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+
+  const handlePrevDay = () => {
+    setSelectedDate(prev => subDays(prev, 1));
+  };
+
+  const handleNextDay = () => {
+    setSelectedDate(prev => addDays(prev, 1));
+  };
+
+  const handleToday = () => {
+    setSelectedDate(new Date());
+  };
+
   return (
     <div className="glass-card overflow-hidden">
       <Tabs defaultValue="score" className="w-full">
         <div className="p-6 border-b border-border/50">
-          <TabsList className="grid w-full max-w-md grid-cols-2 bg-secondary/50">
-            <TabsTrigger 
-              value="score" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2"
-            >
-              <BarChart3 className="w-4 h-4" />
-              Top 10 점수
-            </TabsTrigger>
-            <TabsTrigger 
-              value="openai" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2"
-            >
-              <Sparkles className="w-4 h-4" />
-              OpenAI Top 10
-            </TabsTrigger>
-          </TabsList>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <TabsList className="grid w-full max-w-md grid-cols-2 bg-secondary/50">
+              <TabsTrigger 
+                value="score" 
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2"
+              >
+                <BarChart3 className="w-4 h-4" />
+                Top 10 점수
+              </TabsTrigger>
+              <TabsTrigger 
+                value="openai" 
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2"
+              >
+                <Sparkles className="w-4 h-4" />
+                OpenAI Top 10
+              </TabsTrigger>
+            </TabsList>
+
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-9 w-9"
+                onClick={handlePrevDay}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-[180px] justify-start text-left font-normal",
+                      !selectedDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {format(selectedDate, "PPP", { locale: ko })}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="end">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={(date) => date && setSelectedDate(date)}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-9 w-9"
+                onClick={handleNextDay}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+
+              {!isToday(selectedDate) && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleToday}
+                  className="ml-2"
+                >
+                  오늘
+                </Button>
+              )}
+            </div>
+          </div>
         </div>
         
         <TabsContent value="score" className="mt-0">
